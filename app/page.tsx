@@ -701,7 +701,8 @@ export default function HomePage() {
             checked={flowMode === "two_step"}
             onChange={() => setFlowMode("two_step")}
           />
-          Two-step (document first → selfie second)
+          Two-step (document first → selfie second) (Used This flow for Better
+          Accuracy)
         </label>
       </div>
 

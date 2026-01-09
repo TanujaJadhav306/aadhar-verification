@@ -134,7 +134,11 @@ In **Environment Variables**, add:
 - **Key**: `PY_BACKEND_URL`
 - **Value**: `https://your-backend-url.onrender.com` (from Step 2.5)
 
-**Important**: 
+**⚠️ CRITICAL**: 
+- **DO NOT** include `/health` or any path in the URL
+- Use only the base URL: `https://aadhar-verification.onrender.com` ✅
+- **NOT**: `https://aadhar-verification.onrender.com/health` ❌
+- The API routes automatically append `/v1/verify`, `/v1/detect`, etc.
 - Make sure to add this for **Production**, **Preview**, and **Development** environments
 
 ### 3.5 Deploy
@@ -173,9 +177,49 @@ In **Environment Variables**, add:
 - Make sure `FRONTEND_URL` in Render matches your Vercel URL exactly
 - Wait for backend to redeploy after updating environment variable
 
-**If backend returns 404:**
+**If backend returns 404 (especially `/health/v1/verify` or `/health/v1/detect`):**
+- **This means `PY_BACKEND_URL` includes `/health` in the URL** ❌
+- Check your Vercel environment variable: `PY_BACKEND_URL`
+- It should be: `https://aadhar-verification.onrender.com` ✅
+- **NOT**: `https://aadhar-verification.onrender.com/health` ❌
+- The API routes automatically append `/v1/verify`, `/v1/detect`, etc.
+- Fix: Update `PY_BACKEND_URL` in Vercel → Settings → Environment Variables
+- After updating, redeploy your Vercel app
+
+**If backend returns 404 (general):**
 - Check that the backend URL in Vercel environment variable is correct
 - Make sure backend service is running (check Render dashboard)
+
+**If API routes return 404 (e.g., `/api/verify` not found):**
+1. **Check Vercel Build Logs:**
+   - Go to your Vercel project → Deployments → Click on the latest deployment
+   - Check the "Build Logs" tab for any errors
+   - Look for TypeScript compilation errors or build failures
+
+2. **Verify Route Files Exist:**
+   - Ensure `app/api/verify/route.ts` and other route files are committed to Git
+   - Check that routes are in the correct location: `app/api/[route-name]/route.ts`
+
+3. **Redeploy:**
+   - Go to Vercel Dashboard → Your Project → Deployments
+   - Click "Redeploy" on the latest deployment
+   - Or push a new commit to trigger a fresh build
+
+4. **Check Build Output:**
+   - After deployment, check if `.next/server/app/api/verify` exists in build output
+   - You can check this in Vercel's build logs
+
+5. **Test Route Directly:**
+   - Try accessing `https://your-app.vercel.app/api/verify` with GET request (should return a health check)
+   - This helps verify if the route is deployed
+
+6. **Clear Vercel Cache:**
+   - In Vercel Dashboard → Settings → General
+   - Try "Clear Build Cache" and redeploy
+
+7. **Verify Next.js Version:**
+   - Ensure you're using Next.js 13+ (App Router is required)
+   - Check `package.json` for correct Next.js version
 
 **If models fail to download:**
 - Render free tier may have network restrictions
